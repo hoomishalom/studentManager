@@ -14,7 +14,7 @@ class NewStudent(ctk.CTkFrame):
         
         wb = xl.load_workbook(os.path.join(self.templatePath, "classes_template.xltx"))
         wb.template = False
-        wb.active["P2"] = int(self.studentRate)
+        wb.active["Q2"] = int(self.studentRate)
         wb.save(os.path.join(createDirName(self.studentsPath, self.studentName), createFileName(self.studentName)))
 
 
@@ -37,12 +37,13 @@ class NewStudent(ctk.CTkFrame):
             self.errorLabel.configure(text="Name Is Mandatory") # shows error
 
 
-    def __init__(self, master, studentsPath, templatePath, **kwargs):
+    def __init__(self, master, studentsPath, templatePath, rateLocation,**kwargs):
         super().__init__(master, **kwargs)
         
         self.master = master
         self.studentsPath = studentsPath
         self.templatePath = templatePath
+        self.rateLocation = rateLocation
         self.students = os.listdir(self.studentsPath)
         self.studentName = None
         self.studentRate = None

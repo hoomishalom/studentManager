@@ -1,11 +1,29 @@
 import customtkinter as ctk
 import openpyxl as xl
 import os
-import sys
 from datetime import datetime
+from helperFunctions import createFileName, createDirName
+
 
 
 class AddLesson(ctk.CTkFrame):
+    def saveToFile(self):
+        pass
+    
+    
+    def getDefaultRate(self):
+        if self.studentName != "":
+            wb = xl.load_workbook(os.path.join(createDirName(self.studentsPath, self.studentName), createFileName(self.studentName)))
+            print(wb.active[self.rateLocation].value)
+            return wb.active[self.rateLocation].value
+        else:
+            return 0
+    
+    
+    def resetRate(self):
+        self.studentRateEntry.delete(0, ctk.END)
+        self.studentRateEntry.insert(0, str(self.defaultRate))
+    
     def testValidations(self, e):
         widget = str(self.focus_get()).split(".!entry")[0]
         
@@ -15,10 +33,27 @@ class AddLesson(ctk.CTkFrame):
             self.validateDate()
         elif (widget == str(self.studentHoursEntry) or widget == str(self.studentMinutesEntry)):
             self.validateTime()
+        elif (widget == str(self.studentRateEntry)):
+            self.validateRate()
 
 
     def validateTimeInput(self, P):
         return (str.isdigit(P) or P == "")
+    
+    
+    def validateRate(self):
+        rate = self.studentRateEntry.get()
+        
+        if (rate == ""):
+            rate = 0
+        
+        if (int(rate) > 0):
+            self.rateValid = True
+            self.studentRateValidateCheckBox.select()
+        else:
+            self.rateValid = False
+            self.studentRateValidateCheckBox.deselect()
+        
     
     
     def validateDate(self):
@@ -66,6 +101,8 @@ class AddLesson(ctk.CTkFrame):
         self.students = os.listdir(self.studentsPath)
         
         if (self.studentNameEntry.get() in self.students):
+            self.studentName = self.studentNameEntry.get()
+            self.defaultRate = self.getDefaultRate()
             self.nameValid = True
             self.studentNameValidateCheckBox.select()
         else:
@@ -85,7 +122,7 @@ class AddLesson(ctk.CTkFrame):
         if (self.nameValid):
             if (self.timeValid):
                 if (self.dateValid):
-                    pass
+                    self.saveToFile()
                 else:
                     self.errorLabel.configure(text="Data Is Not Valid (DD.MM.YYYY)") # shows error
             else:
@@ -95,17 +132,20 @@ class AddLesson(ctk.CTkFrame):
 
 
 
-    def __init__(self, master, studentsPath, **kwargs):
+    def __init__(self, master, studentsPath, dateFormat, rateLocation, **kwargs):
         super().__init__(master, **kwargs)
         
         self.master = master
         self.studentsPath = studentsPath
+        self.rateLocation = rateLocation
         self.students = os.listdir(self.studentsPath)
-        self.dateFormat = "%d.%m.%Y"
+        self.studentName = ""
+        self.defaultRate = self.getDefaultRate()
+        self.dateFormat = dateFormat
         self.nameValid = False
         self.timeValid = False
         self.dateValid = False
-        self.studentName = None
+        self.rateValid = False
         self.date = None
         self.hours = 0;
         self.minutes = 0;
@@ -147,6 +187,16 @@ class AddLesson(ctk.CTkFrame):
         self.studentMinutesEntry.insert(0, "0")
         self.studentTimeValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED")
         self.studentTimeValidateCheckBox.grid(row=2, column=3, padx=10)
+        
+        self.studentRateLabel = ctk.CTkLabel(self.inputFrame, text="Rate:")
+        self.studentRateLabel.grid(row=4, column=0, padx=10, pady=10, sticky="W")
+        self.studentRateEntry = ctk.CTkEntry(self.inputFrame, validate="all", validatecommand=(self.register(self.validateTimeInput), "%P"))
+        self.studentRateEntry.grid(row=4, column=1, padx=10, pady=10, sticky="E")
+        self.studentRateEntry.insert(0, str(self.defaultRate))
+        self.studentRateValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED")
+        self.studentRateValidateCheckBox.grid(row=4, column=3, padx=10)
+        self.resetRateButton = ctk.CTkButton(self.inputFrame, text="Reset Rate", command=self.resetRate)
+        self.resetRateButton.grid(row=5, column=1, padx=10, pady=10)
         
         
         self.submitButton = ctk.CTkButton(self, text="Submit", command=self.submit)

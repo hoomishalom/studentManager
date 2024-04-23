@@ -9,6 +9,9 @@ class ManagerApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         
+        self.rateLocation = "Q2"
+        self.dateFormat = "%d.%m.%Y"
+        
         self.WIDTH = 1200
         self.HEIGHT = self.WIDTH * 9/16
 
@@ -27,11 +30,11 @@ class ManagerApp(ctk.CTk):
         self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
         self.title("manager")
 
-        self.newStudentFrame = newStudent.NewStudent(self, self.STUDENTS_PATH, self.TEMPLATES_PATH, height=2 * (self.HEIGHT / 5), width=self.WIDTH * self.newStudentRatio)
+        self.newStudentFrame = newStudent.NewStudent(self, self.STUDENTS_PATH, self.TEMPLATES_PATH, self.rateLocation,height=2 * (self.HEIGHT / 5), width=self.WIDTH * self.newStudentRatio)
         self.newStudentFrame.propagate(False)
         self.newStudentFrame.grid(row=0, column=0, padx=10, pady=10)
         
-        self.addLessonFrame = addLesson.AddLesson(self, self.STUDENTS_PATH, height=3 * (self.HEIGHT / 5), width=self.WIDTH * self.addLessonFrame)
+        self.addLessonFrame = addLesson.AddLesson(self, self.STUDENTS_PATH, self.dateFormat, self.rateLocation, height=3 * (self.HEIGHT / 5), width=self.WIDTH * self.addLessonFrame)
         self.addLessonFrame.propagate(False)
         self.addLessonFrame.grid(row=1, column=0, padx=10, pady=10)
 
