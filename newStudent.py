@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import openpyxl as xl
 import os
-from helperFunctions import createFileName
+from helperFunctions import createFileName, createDirName
 
 
 class NewStudent(ctk.CTkFrame):
@@ -10,12 +10,12 @@ class NewStudent(ctk.CTkFrame):
 
 
     def createDirAndExcel(self):
-        os.mkdir(os.path.join(self.studentsPath, (self.studentName).replace(" ", "_")))
+        os.mkdir(createDirName(self.studentsPath, self.studentName))
         
         wb = xl.load_workbook(os.path.join(self.templatePath, "classes_template.xltx"))
         wb.template = False
         wb.active["P2"] = int(self.studentRate)
-        wb.save(os.path.join(self.studentsPath, (self.studentName).replace(" ", "_"), createFileName(self.studentName)))
+        wb.save(os.path.join(createDirName(self.studentsPath, self.studentName), createFileName(self.studentName)))
 
 
     def submit(self):
@@ -71,4 +71,3 @@ class NewStudent(ctk.CTkFrame):
         
         self.errorLabel = ctk.CTkLabel(self, text="", text_color="red")
         self.errorLabel.pack()
-        
