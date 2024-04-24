@@ -8,13 +8,21 @@ from helperFunctions import createFileName, createDirName
 
 class AddLesson(ctk.CTkFrame):
     def saveToFile(self):
-        pass
+        wb = xl.load_workbook(os.path.join(createDirName(self.studentsPath, self.studentName), createFileName(self.studentName)))
+        lessonCount = wb.active[self.lessonCountLocation].value + 1
+        row = str(lessonCount + 1)
+        wb.active[self.lessonCountLocation] = lessonCount
+        wb.active[self.dateColumn + row] = str(self.studentDateEntry.get())
+        wb.active[self.hoursColumn + row] = int(self.studentHoursEntry.get())
+        wb.active[self.minutesColumn + row] = int(self.studentMinutesEntry.get())
+        wb.active[self.rateColumn + row] = int(self.studentRateEntry.get())
+        wb.save(os.path.join(createDirName(self.studentsPath, self.studentName), createFileName(self.studentName)))
+
     
     
     def getDefaultRate(self):
         if self.studentName != "":
             wb = xl.load_workbook(os.path.join(createDirName(self.studentsPath, self.studentName), createFileName(self.studentName)))
-            print(wb.active[self.rateLocation].value)
             return wb.active[self.rateLocation].value
         else:
             return 0
@@ -46,6 +54,10 @@ class AddLesson(ctk.CTkFrame):
         
         if (rate == ""):
             rate = 0
+        
+        self.studentRateEntry.delete(0, ctk.END)
+        self.studentRateEntry.insert(0, str(int(rate)))
+        
         
         if (int(rate) > 0):
             self.rateValid = True
@@ -103,6 +115,9 @@ class AddLesson(ctk.CTkFrame):
         if (self.studentNameEntry.get() in self.students):
             self.studentName = self.studentNameEntry.get()
             self.defaultRate = self.getDefaultRate()
+            self.studentRateEntry.delete(0, ctk.END)
+            self.studentRateEntry.insert(0, str(self.defaultRate))
+            self.validateRate()
             self.nameValid = True
             self.studentNameValidateCheckBox.select()
         else:
@@ -132,12 +147,17 @@ class AddLesson(ctk.CTkFrame):
 
 
 
-    def __init__(self, master, studentsPath, dateFormat, rateLocation, **kwargs):
+    def __init__(self, master, studentsPath, dateFormat, rateLocation, lessonCountLocation, **kwargs):
         super().__init__(master, **kwargs)
         
         self.master = master
         self.studentsPath = studentsPath
         self.rateLocation = rateLocation
+        self.lessonCountLocation = lessonCountLocation
+        self.dateColumn = "A"
+        self.hoursColumn = "B"
+        self.minutesColumn = "C"
+        self.rateColumn = "E"
         self.students = os.listdir(self.studentsPath)
         self.studentName = ""
         self.defaultRate = self.getDefaultRate()
@@ -151,11 +171,9 @@ class AddLesson(ctk.CTkFrame):
         self.minutes = 0;
         self.INPUT_HEIGHT = 500
         self.INPUT_WIDTH = 250
-        
-        self.master.bind("<KeyRelease>", self.testValidations)
-        
+                
         self.frameNameLabel = ctk.CTkLabel(self, text="Add Lesson", font=("Roboto", 24))
-        self.frameNameLabel.pack(pady=20, padx=10, side="top")
+        self.frameNameLabel.pack(pady=10, padx=10, side="top")
 
         self.inputFrame = ctk.CTkFrame(master=self, height=self.INPUT_HEIGHT, width=self.INPUT_WIDTH)
         self.inputFrame.propagate(False) 
@@ -165,15 +183,15 @@ class AddLesson(ctk.CTkFrame):
         self.studentNameLabel.grid(row=0, column=0, pady=10, padx=10, sticky="W")
         self.studentNameEntry = ctk.CTkEntry(self.inputFrame)
         self.studentNameEntry.grid(row=0, column=1, pady=10, padx=10, sticky="E")
-        self.studentNameValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED")
-        self.studentNameValidateCheckBox.grid(row=0, column=3, padx=10)
+        self.studentNameValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED", width = 30)
+        self.studentNameValidateCheckBox.grid(row=0, column=2, padx=10)
         
         self.studentDateLabel = ctk.CTkLabel(self.inputFrame, text="Date:")
         self.studentDateLabel.grid(row=1, column=0, pady=10, padx=10, sticky="W")
         self.studentDateEntry = ctk.CTkEntry(self.inputFrame)
         self.studentDateEntry.grid(row=1, column=1, pady=10, padx=10, sticky="E")
-        self.studentDataValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED")
-        self.studentDataValidateCheckBox.grid(row=1, column=3, padx=10)
+        self.studentDataValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED", width = 30)
+        self.studentDataValidateCheckBox.grid(row=1, column=2, padx=10)
         
         self.studentHoursLabel = ctk.CTkLabel(self.inputFrame, text="Hours:")
         self.studentHoursLabel.grid(row=2, column=0, pady=10, padx=10, sticky="W")
@@ -185,22 +203,22 @@ class AddLesson(ctk.CTkFrame):
         self.studentMinutesEntry = ctk.CTkEntry(self.inputFrame, validate="all", validatecommand=(self.register(self.validateTimeInput), "%P"))
         self.studentMinutesEntry.grid(row=3, column=1, pady=10, padx=10, sticky="E")
         self.studentMinutesEntry.insert(0, "0")
-        self.studentTimeValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED")
-        self.studentTimeValidateCheckBox.grid(row=2, column=3, padx=10)
+        self.studentTimeValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED", width = 30)
+        self.studentTimeValidateCheckBox.grid(row=2, column=2, padx=10)
         
         self.studentRateLabel = ctk.CTkLabel(self.inputFrame, text="Rate:")
         self.studentRateLabel.grid(row=4, column=0, padx=10, pady=10, sticky="W")
         self.studentRateEntry = ctk.CTkEntry(self.inputFrame, validate="all", validatecommand=(self.register(self.validateTimeInput), "%P"))
         self.studentRateEntry.grid(row=4, column=1, padx=10, pady=10, sticky="E")
         self.studentRateEntry.insert(0, str(self.defaultRate))
-        self.studentRateValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED")
-        self.studentRateValidateCheckBox.grid(row=4, column=3, padx=10)
+        self.studentRateValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED", width = 30)
+        self.studentRateValidateCheckBox.grid(row=4, column=2, padx=10)
         self.resetRateButton = ctk.CTkButton(self.inputFrame, text="Reset Rate", command=self.resetRate)
-        self.resetRateButton.grid(row=5, column=1, padx=10, pady=10)
+        self.resetRateButton.grid(row=4, column=3, padx=10, pady=10)
         
         
         self.submitButton = ctk.CTkButton(self, text="Submit", command=self.submit)
-        self.submitButton.pack()
+        self.submitButton.pack(padx=0, pady=0)
         
         self.errorLabel = ctk.CTkLabel(self, text="", text_color="red")
         self.errorLabel.pack()
