@@ -5,6 +5,15 @@ from helperFunctions import createFileName, createDirName
 
 
 class NewStudent(ctk.CTkFrame):
+    def resetInputs(self):
+        self.studentNameEntry.delete(0, ctk.END)
+        self.studentRateEntry.delete(0, ctk.END)
+        self.studentRateEntry.insert(0, "0")
+        
+        self.validateRate()
+        self.validateName()
+    
+    
     def testValidations(self, e):
         widget = str(self.focus_get()).split(".!entry")[0]
         
@@ -19,10 +28,10 @@ class NewStudent(ctk.CTkFrame):
 
 
     def validateName(self):
-        name = self.studentNameEntry.get()
+        studentName = self.studentNameEntry.get()
         students = os.listdir(self.studentsPath)
     
-        if not (name in students):
+        if not (studentName.lower() in [name.lower() for name in students]) and studentName != "":
             self.studentNameValid = True
             self.studentNameValidateCheckBox.select()
         else:
@@ -68,6 +77,7 @@ class NewStudent(ctk.CTkFrame):
             if (self.studentNameValid):
                 if (self.studentRateValid):
                     self.createDirAndExcel()
+                    self.resetInputs()
                 else:
                     self.errorLabel.configure(text="Rate Is Mandatory") # shows error
             else:

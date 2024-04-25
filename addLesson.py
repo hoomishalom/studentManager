@@ -2,11 +2,50 @@ import customtkinter as ctk
 import openpyxl as xl
 import os
 from datetime import datetime
+from datetime import date
 from helperFunctions import createFileName, createDirName
 
 
 
 class AddLesson(ctk.CTkFrame):
+    def importTime(self):
+        elapsed = self.getTimeFunc()
+        minutes = int(elapsed / 60 % 60)
+        hours = int(elapsed / 3600)
+        if minutes > 0 or hours > 0:
+            self.studentHoursEntry.delete(0, ctk.END)
+            self.studentHoursEntry.insert(0, str(hours))
+            
+            self.studentMinutesEntry.delete(0, ctk.END)
+            self.studentMinutesEntry.insert(0, str(minutes))
+        
+            self.validateTime()
+    
+    
+    def resetDate(self):
+        today = date.today()
+        today = today.strftime(self.dateFormat)
+        self.studentDateEntry.delete(0, ctk.END)
+        self.studentDateEntry.insert(0, today)
+        
+        self.validateDate()
+    
+    
+    def resetInputs(self):
+        self.studentNameEntry.delete(0, ctk.END)
+        self.studentHoursEntry.delete(0, ctk.END)
+        self.studentHoursEntry.insert(0, "0")
+        self.studentMinutesEntry.delete(0, ctk.END)
+        self.studentMinutesEntry.insert(0, "0")
+        self.studentRateEntry.delete(0, ctk.END)
+        self.studentRateEntry.insert(0, "0")
+        self.resetDate()
+        
+        self.validateName()
+        self.validateRate()
+        self.validateTime()
+    
+    
     def saveToFile(self):
         wb = xl.load_workbook(os.path.join(createDirName(self.studentsPath, self.studentName), createFileName(self.studentName)))
         lessonCount = wb.active[self.lessonCountLocation].value + 1
@@ -112,7 +151,7 @@ class AddLesson(ctk.CTkFrame):
     def validateName(self):
         self.students = os.listdir(self.studentsPath)
         
-        if (self.studentNameEntry.get() in self.students):
+        if (self.studentNameEntry.get().lower() in [name.lower() for name in self.students]):
             self.studentName = self.studentNameEntry.get()
             self.defaultRate = self.getDefaultRate()
             self.studentRateEntry.delete(0, ctk.END)
@@ -138,8 +177,9 @@ class AddLesson(ctk.CTkFrame):
             if (self.timeValid):
                 if (self.dateValid):
                     self.saveToFile()
+                    self.resetInputs()
                 else:
-                    self.errorLabel.configure(text="Data Is Not Valid (DD.MM.YYYY)") # shows error
+                    self.errorLabel.configure(text="Date Is Not Valid (DD.MM.YYYY)") # shows error
             else:
                 self.errorLabel.configure(text="Time Is Mandatory") # shows error
         else:
@@ -147,13 +187,14 @@ class AddLesson(ctk.CTkFrame):
 
 
 
-    def __init__(self, master, studentsPath, dateFormat, rateLocation, lessonCountLocation, **kwargs):
+    def __init__(self, master, studentsPath, dateFormat, rateLocation, lessonCountLocation, getTimeFunc, **kwargs):
         super().__init__(master, **kwargs)
         
         self.master = master
         self.studentsPath = studentsPath
         self.rateLocation = rateLocation
         self.lessonCountLocation = lessonCountLocation
+        self.getTimeFunc = getTimeFunc
         self.dateColumn = "A"
         self.hoursColumn = "B"
         self.minutesColumn = "C"
@@ -192,6 +233,9 @@ class AddLesson(ctk.CTkFrame):
         self.studentDateEntry.grid(row=1, column=1, pady=10, padx=10, sticky="E")
         self.studentDataValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED", width = 30)
         self.studentDataValidateCheckBox.grid(row=1, column=2, padx=10)
+        self.studentDateResetDate = ctk.CTkButton(self.inputFrame, text="Reset Date", command=self.resetDate)
+        self.studentDateResetDate.grid(row=1, column=3, padx=10)
+        self.resetDate()
         
         self.studentHoursLabel = ctk.CTkLabel(self.inputFrame, text="Hours:")
         self.studentHoursLabel.grid(row=2, column=0, pady=10, padx=10, sticky="W")
@@ -205,6 +249,8 @@ class AddLesson(ctk.CTkFrame):
         self.studentMinutesEntry.insert(0, "0")
         self.studentTimeValidateCheckBox = ctk.CTkCheckBox(self.inputFrame, text="", state="DISABLED", width = 30)
         self.studentTimeValidateCheckBox.grid(row=2, column=2, padx=10)
+        self.studentTimerImportButton = ctk.CTkButton(self.inputFrame, text="Import From Timer", command=self.importTime)
+        self.studentTimerImportButton.grid(row=2, column=3, padx=10)
         
         self.studentRateLabel = ctk.CTkLabel(self.inputFrame, text="Rate:")
         self.studentRateLabel.grid(row=4, column=0, padx=10, pady=10, sticky="W")
@@ -215,7 +261,6 @@ class AddLesson(ctk.CTkFrame):
         self.studentRateValidateCheckBox.grid(row=4, column=2, padx=10)
         self.resetRateButton = ctk.CTkButton(self.inputFrame, text="Reset Rate", command=self.resetRate)
         self.resetRateButton.grid(row=4, column=3, padx=10, pady=10)
-        
         
         self.submitButton = ctk.CTkButton(self, text="Submit", command=self.submit)
         self.submitButton.pack(padx=0, pady=0)
