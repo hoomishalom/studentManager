@@ -39,13 +39,14 @@ class LessonTimer(ctk.CTkFrame):
             self.startTime = time.time()
     
     
-    def __init__(self, master, **kwargs):
+    def __init__(self, master, timerTypeFunc, **kwargs):
         super().__init__(master, **kwargs)
         
         self.master = master
+        self.timerTypeFunc = timerTypeFunc
         self.framePading = 15
         self.inputFramePading = 5
-        self.INPUT_HEIGHT = kwargs.get("width")
+        self.INPUT_HEIGHT = kwargs.get("height") - 120
         self.INPUT_WIDTH = kwargs.get("width")
         
         self.timerRunning = False
@@ -54,7 +55,7 @@ class LessonTimer(ctk.CTkFrame):
         self.timerThread = threading.Thread(target=self.threadFunc, daemon=True)
         self.timerThread.start()
         
-        self.frameNameLabel = ctk.CTkLabel(self, text="Lesson Timer", font=("Roboto", 24))
+        self.frameNameLabel = ctk.CTkLabel(self, text="Stopwatch", font=("Roboto", 24))
         self.frameNameLabel.pack(pady=10, padx=10, side="top")
         
         self.inputFrame = ctk.CTkFrame(self, width=self.INPUT_WIDTH, height=self.INPUT_HEIGHT)
@@ -64,7 +65,7 @@ class LessonTimer(ctk.CTkFrame):
         self.inputFrame.columnconfigure(3, weight=1)
         
         self.timeLabel = ctk.CTkLabel(self.inputFrame, text="00:00:00", font=("Roboto", 96))
-        self.timeLabel.grid(row=0, column=0, rowspan=3, columnspan=3, padx=self.inputFramePading, pady=self.inputFramePading)
+        self.timeLabel.grid(row=0, column=0, rowspan=3, columnspan=3, sticky="we", padx=self.inputFramePading, pady=self.inputFramePading)
         
         self.playButton = ctk.CTkButton(self.inputFrame, text="Play", command=self.startTimer)
         self.playButton.grid(row=0, column=3, sticky="NE", padx=self.inputFramePading, pady=self.inputFramePading)
@@ -74,3 +75,7 @@ class LessonTimer(ctk.CTkFrame):
         
         self.resetButton = ctk.CTkButton(self.inputFrame, text="Reset", command=self.resetTimer)
         self.resetButton.grid(row=2, column=3, sticky="SE", padx=self.inputFramePading, pady=self.inputFramePading)
+        
+        self.toggleTimerType = ctk.CTkButton(self, text="Toggle Timer Type", command=self.timerTypeFunc)
+        self.toggleTimerType.pack()
+        

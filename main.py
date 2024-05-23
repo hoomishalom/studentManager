@@ -1,6 +1,8 @@
 import newStudent
 import addLesson
 import lessonTimer
+import lessonCountdown
+import editStudent
 import customtkinter as ctk
 import os
 import sys
@@ -13,7 +15,21 @@ class ManagerApp(ctk.CTk):
     
     
     def getTimerValue(self):
-        return self.lessonTimerFrame.elapsed
+        if self.currentTimer == "stopwatch":
+            print(self.lessonStopwatchFrame.elapsed)
+            return self.lessonStopwatchFrame.elapsed
+        elif self.currentTimer == "countdown":
+            print(self.lessonCountdownFrame.elapsed)
+            return self.lessonCountdownFrame.elapsed
+    
+    
+    def toggleTimerType(self):
+        if self.currentTimer == "stopwatch":
+            self.lessonCountdownFrame.tkraise()
+            self.currentTimer = "countdown"
+        elif self.currentTimer == "countdown":
+            self.lessonStopwatchFrame.tkraise()
+            self.currentTimer = "stopwatch"
     
     
     def __init__(self):
@@ -22,6 +38,8 @@ class ManagerApp(ctk.CTk):
         self.rateLocation = "Q2"
         self.lesssonCountLocation = "Q3"
         self.dateFormat = "%d.%m.%Y"
+        
+        self.currentTimer = "stopwatch"
         
         self.framePading = 5
         
@@ -45,9 +63,16 @@ class ManagerApp(ctk.CTk):
         self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
         self.title("manager")
         
-        self.lessonTimerFrame = lessonTimer.LessonTimer(self, height=(self.HEIGHT * 0.3 - 2 * self.framePading), width=self.WIDTH - (self.WIDTH * self.studentFrameRatio) - 2 * self.framePading)
-        self.lessonTimerFrame.propagate(False)
-        self.lessonTimerFrame.grid(row=0, column=1, padx=self.framePading, pady=self.framePading, sticky="N")
+        self.propagate(False)
+        self.grid_propagate(False)
+                
+        self.lessonCountdownFrame = lessonCountdown.LessonCountdown(self, self.toggleTimerType, height=(self.HEIGHT * 0.35 - 2 * self.framePading), width=self.WIDTH - (self.WIDTH * self.studentFrameRatio) - 2 * self.framePading)
+        self.lessonCountdownFrame.propagate(False)
+        self.lessonCountdownFrame.grid(row=0, column=1, padx=self.framePading, pady=self.framePading, sticky="N")
+        
+        self.lessonStopwatchFrame = lessonTimer.LessonTimer(self, self.toggleTimerType, height=(self.HEIGHT * 0.4 - 2 * self.framePading), width=self.WIDTH - (self.WIDTH * self.studentFrameRatio) - 2 * self.framePading)
+        self.lessonStopwatchFrame.propagate(False)
+        self.lessonStopwatchFrame.grid(row=0, column=1, padx=self.framePading, pady=self.framePading, sticky="N")
 
         self.newStudentFrame = newStudent.NewStudent(self, self.STUDENTS_PATH, self.TEMPLATES_PATH, self.rateLocation,height=self.HEIGHT * 0.4 - 10, width=(self.WIDTH * self.studentFrameRatio - 2 * self.framePading))
         self.newStudentFrame.propagate(False)
@@ -56,6 +81,10 @@ class ManagerApp(ctk.CTk):
         self.addLessonFrame = addLesson.AddLesson(self, self.STUDENTS_PATH, self.dateFormat, self.rateLocation, self.lesssonCountLocation, self.getTimerValue, height=(self.HEIGHT * 0.6 - 2 * self.framePading), width=(self.WIDTH * self.studentFrameRatio - 2 * self.framePading))
         self.addLessonFrame.propagate(False)
         self.addLessonFrame.grid(row=1, column=0, padx=self.framePading, pady=self.framePading)
+        
+        self.addLessonFrame = editStudent.EditStudent(self, self.STUDENTS_PATH, self.rateLocation, height=(self.HEIGHT * 0.6 - 2 * self.framePading), width=self.WIDTH - (self.WIDTH * self.studentFrameRatio) - 2 * self.framePading)
+        self.addLessonFrame.propagate(False)
+        self.addLessonFrame.grid(row=1, column=1, padx=self.framePading, pady=self.framePading)
 
     def close(self, e):
         sys.exit()

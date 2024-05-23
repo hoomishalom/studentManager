@@ -170,7 +170,6 @@ class AddLesson(ctk.CTkFrame):
         self.minutes = int(self.studentMinutesEntry.get())
         self.date = self.studentDateEntry.get()
         
-        print("Test")
         self.validateName()
         
         if (self.nameValid):
