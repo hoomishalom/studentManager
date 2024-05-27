@@ -26,8 +26,6 @@ class LessonCountdown(ctk.CTkFrame):
         minutes = int(self.timeRemaining / 60 % 60)
         hours = int(self.timeRemaining / 3600)
         self.timeLabel.configure(text=f"{hours:0>2}:{minutes:0>2}:{seconds:0>2}")
-        print(time.time())
-
     
     
     def resetTimer(self):

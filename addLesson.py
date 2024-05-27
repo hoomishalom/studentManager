@@ -74,6 +74,8 @@ class AddLesson(ctk.CTkFrame):
     def testValidations(self, e):
         widget = str(self.focus_get()).split(".!entry")[0]
         
+        print("test")
+        
         if (widget == str(self.studentNameEntry)): # checks if both widgets are the same
             self.validateName()
         elif (widget == str(self.studentDateEntry)):
@@ -150,6 +152,7 @@ class AddLesson(ctk.CTkFrame):
 
     def validateName(self):
         self.students = os.listdir(self.studentsPath)
+        print("test")
         
         if (self.studentNameEntry.get().lower() in [name.lower() for name in self.students]):
             self.studentName = self.studentNameEntry.get()

@@ -12,6 +12,7 @@ class ManagerApp(ctk.CTk):
     def validateInputs(self, e):
         self.newStudentFrame.testValidations(e)
         self.addLessonFrame.testValidations(e)
+        self.editStudentFrame.testValidatoins(e)
     
     
     def getTimerValue(self):
@@ -82,9 +83,9 @@ class ManagerApp(ctk.CTk):
         self.addLessonFrame.propagate(False)
         self.addLessonFrame.grid(row=1, column=0, padx=self.framePading, pady=self.framePading)
         
-        self.addLessonFrame = editStudent.EditStudent(self, self.STUDENTS_PATH, self.rateLocation, height=(self.HEIGHT * 0.6 - 2 * self.framePading), width=self.WIDTH - (self.WIDTH * self.studentFrameRatio) - 2 * self.framePading)
-        self.addLessonFrame.propagate(False)
-        self.addLessonFrame.grid(row=1, column=1, padx=self.framePading, pady=self.framePading)
+        self.editStudentFrame = editStudent.EditStudent(self, self.STUDENTS_PATH, self.rateLocation, height=(self.HEIGHT * 0.6 - 2 * self.framePading), width=self.WIDTH - (self.WIDTH * self.studentFrameRatio) - 2 * self.framePading)
+        self.editStudentFrame.propagate(False)
+        self.editStudentFrame.grid(row=1, column=1, padx=self.framePading, pady=self.framePading)
 
     def close(self, e):
         sys.exit()
