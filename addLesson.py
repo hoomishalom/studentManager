@@ -8,6 +8,16 @@ from helperFunctions import createFileName, createDirName
 
 
 class AddLesson(ctk.CTkFrame):
+    def studentPaid(self):
+        self.studentPaidEntry.delete(0, ctk.END)
+        amount = int((int(self.studentHoursEntry.get()) + int(self.studentMinutesEntry.get()) / 60) * (int(self.studentRateEntry.get())))
+        if(amount > 0):
+            self.studentPaidEntry.insert(0, str(amount))
+        else:
+            self.studentPaidEntry.insert(0, "0")
+    
+    
+    
     def importTime(self):
         elapsed = self.getTimeFunc()
         minutes = int(elapsed / 60 % 60)
@@ -39,6 +49,8 @@ class AddLesson(ctk.CTkFrame):
         self.studentMinutesEntry.insert(0, "0")
         self.studentRateEntry.delete(0, ctk.END)
         self.studentRateEntry.insert(0, "0")
+        self.studentPaidEntry.delete(0, ctk.END)
+        self.studentPaidEntry.insert(0, "0")
         self.resetDate()
         
         self.validateName()
@@ -55,6 +67,10 @@ class AddLesson(ctk.CTkFrame):
         wb.active[self.hoursColumn + row] = int(self.studentHoursEntry.get())
         wb.active[self.minutesColumn + row] = int(self.studentMinutesEntry.get())
         wb.active[self.rateColumn + row] = int(self.studentRateEntry.get())
+        if(self.studentPaidCheckbox.get() == 1):
+            wb.active[self.paidColumn + row] = int(self.studentPaidEntry.get())
+        else:
+            wb.active[self.paidColumn + row] = 0
         wb.save(os.path.join(createDirName(self.studentsPath, self.studentName), createFileName(self.studentName)))
 
     
@@ -73,9 +89,7 @@ class AddLesson(ctk.CTkFrame):
     
     def testValidations(self, e):
         widget = str(self.focus_get()).split(".!entry")[0]
-        
-        print("test")
-        
+                
         if (widget == str(self.studentNameEntry)): # checks if both widgets are the same
             self.validateName()
         elif (widget == str(self.studentDateEntry)):
@@ -107,6 +121,7 @@ class AddLesson(ctk.CTkFrame):
             self.rateValid = False
             self.studentRateValidateCheckBox.deselect()
         
+        self.studentPaid()
     
     
     def validateDate(self):
@@ -148,11 +163,12 @@ class AddLesson(ctk.CTkFrame):
         else:
             self.timeValid = False
             self.studentTimeValidateCheckBox.deselect()
+            
+        self.studentPaid()
 
 
     def validateName(self):
         self.students = os.listdir(self.studentsPath)
-        print("test")
         
         if (self.studentNameEntry.get().lower() in [name.lower() for name in self.students]):
             self.studentName = self.studentNameEntry.get()
@@ -174,7 +190,7 @@ class AddLesson(ctk.CTkFrame):
         self.date = self.studentDateEntry.get()
         
         self.validateName()
-        
+
         if (self.nameValid):
             if (self.timeValid):
                 if (self.dateValid):
@@ -201,6 +217,7 @@ class AddLesson(ctk.CTkFrame):
         self.hoursColumn = "B"
         self.minutesColumn = "C"
         self.rateColumn = "E"
+        self.paidColumn = "G"
         self.students = os.listdir(self.studentsPath)
         self.studentName = ""
         self.defaultRate = self.getDefaultRate()
@@ -263,6 +280,16 @@ class AddLesson(ctk.CTkFrame):
         self.studentRateValidateCheckBox.grid(row=4, column=2, padx=10)
         self.resetRateButton = ctk.CTkButton(self.inputFrame, text="Reset Rate", command=self.resetRate)
         self.resetRateButton.grid(row=4, column=3, padx=10, pady=10)
+        
+        self.studentPaidLabel = ctk.CTkLabel(self.inputFrame, text="Paid:")
+        self.studentPaidLabel.grid(row=5, column=0, padx=10, pady=10, sticky="W")
+        self.studentPaidEntry = ctk.CTkEntry(self.inputFrame, validate="all", validatecommand=(self.register(self.validateTimeInput), "%P"))
+        self.studentPaidEntry.grid(row=5, column=1, padx=10, pady=10, sticky="E")
+        self.studentPaidEntry.insert(0, "0")
+        self.studentPaidResetButton = ctk.CTkButton(self.inputFrame, text="Paid", command=self.studentPaid)
+        self.studentPaidResetButton.grid(row=5, column=3, padx=10, pady=10)
+        self.studentPaidCheckbox = ctk.CTkCheckBox(self.inputFrame, text="", width = 30)
+        self.studentPaidCheckbox.grid(row=5, column=2, padx=10)
         
         self.submitButton = ctk.CTkButton(self, text="Submit", command=self.submit)
         self.submitButton.pack(padx=0, pady=0)

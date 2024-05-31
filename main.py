@@ -12,7 +12,7 @@ class ManagerApp(ctk.CTk):
     def validateInputs(self, e):
         self.newStudentFrame.testValidations(e)
         self.addLessonFrame.testValidations(e)
-        self.editStudentFrame.testValidatoins(e)
+        self.editStudentFrame.testValidations(e)
     
     
     def getTimerValue(self):
